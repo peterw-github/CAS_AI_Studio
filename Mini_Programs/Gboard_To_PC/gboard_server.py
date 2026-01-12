@@ -18,12 +18,27 @@ HTML_PAGE = """
     <style>
         body { font-family: sans-serif; padding: 20px; background: #121212; color: #e0e0e0; }
         textarea { 
-            width: 100%; height: 300px; 
+            width: 100%; height: 250px; 
             font-size: 18px; padding: 10px; 
             background: #1e1e1e; color: #fff; 
             border: 1px solid #333; border-radius: 8px;
+            box-sizing: border-box; /* Ensures padding doesn't break width */
         }
-        .status { margin-top: 10px; color: #00ff00; font-size: 14px; }
+        .status { margin-top: 10px; color: #00ff00; font-size: 14px; margin-bottom: 10px; }
+
+        /* New Button Styles */
+        button {
+            width: 100%; 
+            padding: 15px; 
+            font-size: 18px; 
+            background-color: #CF6679; /* A nice muted red */
+            color: #000; 
+            border: none; 
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        button:active { background-color: #b00020; } /* Darker red when pressed */
     </style>
 </head>
 <body>
@@ -31,10 +46,20 @@ HTML_PAGE = """
     <textarea id="textbox" placeholder="Tap microphone on Gboard and speak..."></textarea>
     <div id="status" class="status">Ready</div>
 
+    <button id="clearBtn">Clear Text</button>
+
     <script>
         const textbox = document.getElementById('textbox');
         const status = document.getElementById('status');
+        const clearBtn = document.getElementById('clearBtn');
         let timeout = null;
+
+        // NEW: Clear button logic
+        clearBtn.addEventListener('click', function() {
+            textbox.value = "";
+            status.innerText = "Cleared";
+            textbox.focus(); // Keeps the keyboard open so you can keep talking
+        });
 
         // Send text to Python whenever input changes
         textbox.addEventListener('input', function() {
