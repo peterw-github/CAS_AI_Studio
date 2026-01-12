@@ -3,7 +3,7 @@ title Voice Bridge Server
 echo Starting Voice Bridge...
 echo.
 
-:: Check if the python script is actually in the folder
+:: Check if the script exists in the current folder
 if not exist "gboard_server.py" (
     echo ERROR: Could not find 'gboard_server.py'.
     echo Please make sure this file is in the same folder as your Python script.
@@ -12,11 +12,10 @@ if not exist "gboard_server.py" (
     exit /b
 )
 
-:: Run the script
-:: This will stay open until you close the window or press Ctrl+C
-python gboard_server.py
+:: Run the script using the Virtual Environment Python found in your logs
+"D:\CAS\.venv\Scripts\python.exe" "gboard_server.py"
 
-:: If the script crashes or closes, pause so you can see the error
+:: Pause if it closes so you can see errors
 echo.
 echo Server has stopped.
 pause
