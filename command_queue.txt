@@ -1,0 +1,4 @@
+**[CAS HEARTBEAT]**
+`Time: 2026-01-12T10:07`
+`Current Prompt Frequency: 10 minutes`
+`!CAS help` for available features.
