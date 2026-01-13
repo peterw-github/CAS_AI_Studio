@@ -12,7 +12,7 @@ BRIDGE_LOOP_DELAY = 1
 CLIPBOARD_TIMEOUT = 5
 
 # --- VOICE SETTINGS ---
-VIBEVOICE_URL = "https://96a5b36970c2e6fb1a.gradio.live/" # Update if expired
+VIBEVOICE_URL = "https://bf55031b131ce24043.gradio.live/" # Update if expired
 VOICE_SPEAKER = "Just Keep Your Head Down, - Halo 3" # List of voices available are in 'Emotional Tones' folder. 'Just keep your head down' with CFG 1.1 - 1.3 is good.
 VOICE_CFG_SCALE = 1.1
 DISABLE_CLONE = False

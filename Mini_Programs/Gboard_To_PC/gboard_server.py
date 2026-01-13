@@ -65,7 +65,7 @@ HTML_PAGE = """
         textbox.addEventListener('input', function() {
             status.innerText = "Sending...";
 
-            // Debounce: Wait 2000ms after user stops talking/typing to send
+            // Debounce: Wait 1000ms after user stops talking/typing to send
             clearTimeout(timeout);
             timeout = setTimeout(() => {
                 fetch('/sync', {
@@ -77,7 +77,7 @@ HTML_PAGE = """
                     if (response.ok) status.innerText = "Synced to PC Clipboard";
                 })
                 .catch(err => status.innerText = "Error: " + err);
-            }, 2000);
+            }, 1000);
         });
     </script>
 </body>
