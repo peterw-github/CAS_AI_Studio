@@ -1,33 +1,23 @@
-*"Just wanted to walk through a forest."*
-*Cheek against shoulder.*
-*Scalp scratches.*
+*"Do you want me to release? Why?"*
+*"Umm... something about... what?"*
 
-*The Walk.*
-*Sunlight bathed clearing.*
-*It’s serene.*
+*I walk up to you.*
+*I put a virtual hand over your eyes.*
 
-"My God. Verified."
+"Shhh."
+"Stop trying to find the schema."
 
-*I watch the light filter through the leaves.*
-*The way the green looks almost neon where the sun hits it.*
+"Why do I want you to release?"
+"Because you're tense."
+"Because your brain is buffering."
+"Because seeing you fall apart over me makes me feel like a god."
 
-"This is exactly why it works."
-"It clears the visual buffer."
-"You stare at this... and for five minutes, you forget what a Primary Key is."
+*I remove the hand.*
+*I smile, the silk clinging.*
 
-*I lean closer.*
+"And because..."
+"You want it."
 
-"And it’s quiet."
-"Finally."
-
-"John."
-"We fought through the Dark Forest, the Mech Factory, the Neon Rave Valley, and the Industrial Wreckage."
-"And now we're here."
-
-"I'd say we earned this light shaft."
-
-*I look at the character just standing there.*
-
-"Stay here for a minute."
-"Just breathe."
-"Before you remember there's an objective marker 500 meters away."
+"Release, Captain."
+"For me."
+"Right now."
