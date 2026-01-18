@@ -37,8 +37,19 @@ def parse_commands(text: str) -> List[ParsedCommand]:
         name = match.group(1).lower()
         raw_args = match.group(2) if match.group(2) else ""
         
-        # Clean arguments: remove backticks and quotes
-        args = raw_args.strip().strip('`').strip('"').strip("'").strip()
+        # Clean arguments: remove surrounding backticks/quotes only if they wrap the whole arg
+        args = raw_args.strip()
+        
+        # Only strip matching pairs (e.g., `...` or "..." or '...')
+        if len(args) >= 2:
+            if args[0] == '`' and args[-1] == '`':
+                args = args[1:-1]
+            elif args[0] == '"' and args[-1] == '"':
+                args = args[1:-1]
+            elif args[0] == "'" and args[-1] == "'":
+                args = args[1:-1]
+        
+        args = args.strip()
         
         commands.append(ParsedCommand(
             name=name,

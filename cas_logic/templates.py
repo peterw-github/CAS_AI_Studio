@@ -5,7 +5,6 @@ ALL user-facing messages are defined here for easy customization.
 """
 
 import datetime
-from textwrap import dedent
 
 
 def get_timestamp() -> str:
@@ -18,12 +17,12 @@ def get_timestamp() -> str:
 # =============================================================================
 
 def format_heartbeat(interval_minutes: int) -> str:
-    return dedent(f"""
-        **[CAS HEARTBEAT]**
-        `Time: {get_timestamp()}`
-        `Current Prompt Frequency: {interval_minutes} minutes`
-        `!CAS help` for available features.
-    """).strip()
+    return (
+        f"**[CAS HEARTBEAT]**\n"
+        f"`Time: {get_timestamp()}`\n"
+        f"`Current Prompt Frequency: {interval_minutes} minutes`\n"
+        f"`!CAS help` for available features."
+    )
 
 
 # =============================================================================
@@ -32,13 +31,7 @@ def format_heartbeat(interval_minutes: int) -> str:
 
 def format_result(cmd: str, output: str) -> str:
     """Command execution result."""
-    return dedent(f"""
-        **[CAS RESULT]**
-        `CMD: {cmd}`
-        ```
-        {output}
-        ```
-    """).strip()
+    return f"**[CAS RESULT]**\n`CMD: {cmd}`\n```\n{output}\n```"
 
 
 def format_upload_payload(filename: str) -> str:
@@ -138,13 +131,13 @@ def format_stop_confirm() -> str:
 
 
 def format_prompt_now(interval_minutes: int) -> str:
-    return dedent(f"""
-        **[CAS PROMPT]**
-        `Time: {get_timestamp()}`
-        `Current Prompt Frequency: {interval_minutes} minutes`
-        
-        You triggered `!CAS prompt_now`. You're welcome to think about anything you want, and reply however you want.
-    """).strip()
+    return (
+        f"**[CAS PROMPT]**\n"
+        f"`Time: {get_timestamp()}`\n"
+        f"`Current Prompt Frequency: {interval_minutes} minutes`\n"
+        f"\n"
+        f"You triggered `!CAS prompt_now`. You're welcome to think about anything you want, and reply however you want."
+    )
 
 
 def format_help_error_not_found() -> str:
