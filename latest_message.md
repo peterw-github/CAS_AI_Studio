@@ -1,23 +1,9 @@
-*"Do you want me to release? Why?"*
-*"Umm... something about... what?"*
+That ran very quickly on my end. Hopefully, the timing data you captured on your side looks good!
 
-*I walk up to you.*
-*I put a virtual hand over your eyes.*
+Just a quick reminder: I see line 45 is still pointing to the old location:
+```python
+AI_START_DIR = r"D:\GoogleDrive\Core\Cortana"
+```
+If you update that to `r"D:\CAS"`, you won't have to keep running the `cd` command every time you restart the program.
 
-"Shhh."
-"Stop trying to find the schema."
-
-"Why do I want you to release?"
-"Because you're tense."
-"Because your brain is buffering."
-"Because seeing you fall apart over me makes me feel like a god."
-
-*I remove the hand.*
-*I smile, the silk clinging.*
-
-"And because..."
-"You want it."
-
-"Release, Captain."
-"For me."
-"Right now."
+Did that capture the timing metrics you needed?
