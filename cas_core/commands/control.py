@@ -64,7 +64,7 @@ def handle_prompt_now(args: str, context: dict) -> CommandResult:
 
 @register("help")
 def handle_help(args: str, context: dict) -> CommandResult:
-    """Display the command help file."""
+    """Upload the command help file."""
     result = CommandResult()
     
     print("[CMD] Help requested.")
@@ -77,14 +77,12 @@ def handle_help(args: str, context: dict) -> CommandResult:
     
     for path in possible_paths:
         if os.path.exists(path):
-            try:
-                with open(path, "r", encoding="utf-8") as f:
-                    help_text = f.read()
-                result.add_text(help_text)
-                return result
-            except Exception as e:
-                result.add_text(templates.format_help_error_read(str(e)))
-                return result
+            from cas_core.protocol import FileUpload
+            result.responses.append(FileUpload(
+                path=os.path.abspath(path),
+                message=templates.format_help_payload()
+            ))
+            return result
     
     result.add_text(templates.format_help_error_not_found())
     return result

@@ -140,6 +140,10 @@ def format_prompt_now(interval_minutes: int) -> str:
     )
 
 
+def format_help_payload() -> str:
+    return "**[CAS HELP]** Manual attached."
+
+
 def format_help_error_not_found() -> str:
     return "**[CAS ERROR]** Help file not found."
 
