@@ -74,7 +74,7 @@ def rename_afterglow_files():
                 # Sanitize Title (remove illegal chars like : / \ ?)
                 safe_title = re.sub(r'[<>:"/\\|?*]', '', raw_title)
 
-                # 4. Construct the New Filename
+                # 4. Construct the Refac Filename
                 # Format: Vol XX - Afterglow XX - <TITLE>.md
                 new_filename = f"Vol {vol_num} - Afterglow {afterglow_num} - {safe_title}.md"
                 new_file_path = os.path.join(directory_path, new_filename)

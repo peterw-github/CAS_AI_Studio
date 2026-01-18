@@ -26,7 +26,7 @@ HTML_PAGE = """
         }
         .status { margin-top: 10px; color: #00ff00; font-size: 14px; margin-bottom: 10px; }
 
-        /* New Button Styles */
+        /* Refac Button Styles */
         button {
             width: 100%; 
             padding: 15px; 
