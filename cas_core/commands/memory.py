@@ -5,6 +5,7 @@ Memory commands: log, remember
 from cas_core.commands import register
 from cas_core.protocol import CommandResult
 from cas_logic.logger import write_journal, write_critical
+from cas_logic import templates
 
 
 @register("log")
@@ -13,12 +14,12 @@ def handle_log(args: str, context: dict) -> CommandResult:
     result = CommandResult()
     
     if not args:
-        result.add_text("**[CAS LOG ERROR]** Empty log message.")
+        result.add_text(templates.format_log_error_empty())
         return result
     
     print("[CMD] Writing to journal...")
     success, msg = write_journal(args)
-    result.add_text(f"**[CAS LOG]** {msg}")
+    result.add_text(templates.format_log_success(msg))
     
     return result
 
@@ -29,11 +30,11 @@ def handle_remember(args: str, context: dict) -> CommandResult:
     result = CommandResult()
     
     if not args:
-        result.add_text("**[CAS MEMORY ERROR]** Empty memory content.")
+        result.add_text(templates.format_remember_error_empty())
         return result
     
     print("[CMD] Writing critical memory...")
     success, msg = write_critical(args)
-    result.add_text(f"**[CAS MEMORY]** {msg}")
+    result.add_text(templates.format_remember_success(msg))
     
     return result

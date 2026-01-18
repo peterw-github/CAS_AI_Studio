@@ -14,14 +14,13 @@ import requests
 from PIL import Image
 import io
 
-
 from cas_core.clipboard import copy_file_to_clipboard, copy_image_to_clipboard
 
 
 # --- CONFIGURATION ---
 PHONE_IP = "192.168.0.235"
 ADB_PORT = "5555"
-ADB_PATH = r"/Phone_Code/android_sdk_platform_tools/adb.exe"
+ADB_PATH = r"D:\CAS\Phone_Code\android_sdk_platform_tools\adb.exe"
 PC_DESTINATION_FOLDER = r"D:\CAS\Phone_Code\Recordings"
 
 # Phone camera app coordinates

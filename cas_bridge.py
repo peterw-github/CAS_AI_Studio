@@ -263,7 +263,6 @@ def process_command_queue(driver):
         
         # Process each response
         text_parts = []
-        has_file_attachment = False  # <--- 1. Add this flag
         
         for resp in responses:
             resp_type = resp.get('type')
@@ -273,7 +272,6 @@ def process_command_queue(driver):
             
             elif resp_type == 'file_upload':
                 handle_file_upload(box, resp['path'])
-                has_file_attachment = True  # <--- 2. Set it to True here
                 text_parts.append(resp['message'])
             
             elif resp_type == 'screenshot':
@@ -299,11 +297,6 @@ def process_command_queue(driver):
         if text_parts:
             full_text = "\n\n".join(text_parts)
             handle_text(box, full_text)
-
-        # --- 3. ADD THIS WAIT BLOCK ---
-        if has_file_attachment:
-            print("[BRIDGE] File attached. Waiting 5s for AI Studio processing...")
-            time.sleep(5.0)
         
         # Submit
         print("[BRIDGE] Submitting...")

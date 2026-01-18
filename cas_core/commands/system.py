@@ -8,8 +8,8 @@ import time
 
 import cas_config as cfg
 from cas_core.commands import register
-from cas_core.protocol import CommandResult, TextResponse, FileUpload, DeleteFile
-from cas_logic.templates import format_result, format_upload_payload
+from cas_core.protocol import CommandResult, FileUpload, DeleteFile, TextResponse
+from cas_logic import templates
 
 
 # --- CWD STATE MANAGEMENT ---
@@ -51,7 +51,7 @@ def handle_exec(args: str, context: dict) -> CommandResult:
     result = CommandResult()
     
     if not args:
-        result.add_text("**[CAS ERROR]** No command specified.")
+        result.add_text(templates.format_upload_error_no_file())
         return result
     
     print(f"[CMD] Executing: {args}")
@@ -101,10 +101,10 @@ def handle_exec(args: str, context: dict) -> CommandResult:
         else:
             output_text = f"{clean_output}\n\n{status_tag}" if clean_output else status_tag
         
-        result.add_text(format_result(args, output_text))
+        result.add_text(templates.format_result(args, output_text))
         
     except Exception as e:
-        result.add_text(format_result(args, f"Error: {e}"))
+        result.add_text(templates.format_result(args, f"Error: {e}"))
     
     return result
 
@@ -121,7 +121,7 @@ def handle_upload(args: str, context: dict) -> CommandResult:
     result = CommandResult()
     
     if not args:
-        result.add_text("**[CAS ERROR]** No filename specified.")
+        result.add_text(templates.format_upload_error_no_file())
         return result
     
     # Resolve relative paths
@@ -132,15 +132,14 @@ def handle_upload(args: str, context: dict) -> CommandResult:
     if os.path.exists(target_path):
         print(f"[CMD] Uploading: {target_path}")
         filename = os.path.basename(target_path)
-        interval_mins = context.get('interval', 600) // 60
         
         result.responses.append(FileUpload(
             path=target_path,
-            message=format_upload_payload(filename, interval_mins)
+            message=templates.format_upload_payload(filename)
         ))
     else:
         print(f"[CMD ERROR] File not found: {target_path}")
-        result.add_text(f"**[CAS ERROR]** File not found: {args}")
+        result.add_text(templates.format_upload_error_not_found(args))
     
     return result
 
@@ -151,10 +150,11 @@ def handle_delete_file(args: str, context: dict) -> CommandResult:
     result = CommandResult()
     
     if not args:
-        result.add_text("**[CAS ERROR]** No filename specified for deletion.")
+        result.add_text(templates.format_delete_error_no_file())
         return result
     
     print(f"[CMD] Delete file: {args}")
     result.responses.append(DeleteFile(filename=args))
+    result.add_text(templates.format_delete_confirm(args))
     
     return result

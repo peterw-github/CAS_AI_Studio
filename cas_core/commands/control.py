@@ -6,7 +6,7 @@ import os
 
 from cas_core.commands import register
 from cas_core.protocol import CommandResult
-from cas_logic.templates import format_freq_confirm, format_prompt_now
+from cas_logic import templates
 
 
 @register("freq", aliases=["frequency", "timer", "prompt_frequency"])
@@ -20,20 +20,20 @@ def handle_freq(args: str, context: dict) -> CommandResult:
         minutes = int(clean_args)
         
         if minutes < 1:
-            result.add_text("**[CAS ERROR]** Frequency must be at least 1 minute.")
+            result.add_text(templates.format_freq_error_too_low())
             return result
         
         if minutes > 1440:  # 24 hours
-            result.add_text("**[CAS ERROR]** Frequency cannot exceed 1440 minutes (24 hours).")
+            result.add_text(templates.format_freq_error_too_high())
             return result
         
         print(f"[CMD] Frequency set to {minutes}m")
         result.new_interval = minutes * 60
-        result.add_text(format_freq_confirm(minutes))
+        result.add_text(templates.format_freq_confirm(minutes))
         
     except ValueError:
         print(f"[CMD ERROR] Invalid frequency: {args}")
-        result.add_text(f"**[CAS ERROR]** Invalid frequency value: `{args}`")
+        result.add_text(templates.format_freq_error_invalid(args))
     
     return result
 
@@ -45,7 +45,7 @@ def handle_stop(args: str, context: dict) -> CommandResult:
     
     print("[CMD] Stop requested.")
     result.should_stop = True
-    result.add_text("**[CAS SYSTEM]** Shutting down...")
+    result.add_text(templates.format_stop_confirm())
     
     return result
 
@@ -57,7 +57,7 @@ def handle_prompt_now(args: str, context: dict) -> CommandResult:
     
     print("[CMD] Prompt now triggered.")
     interval_mins = context.get('interval', 600) // 60
-    result.add_text(format_prompt_now(interval_mins))
+    result.add_text(templates.format_prompt_now(interval_mins))
     
     return result
 
@@ -83,8 +83,8 @@ def handle_help(args: str, context: dict) -> CommandResult:
                 result.add_text(help_text)
                 return result
             except Exception as e:
-                result.add_text(f"**[CAS ERROR]** Could not read help file: {e}")
+                result.add_text(templates.format_help_error_read(str(e)))
                 return result
     
-    result.add_text("**[CAS ERROR]** 'commands_explained.md' file not found.")
+    result.add_text(templates.format_help_error_not_found())
     return result

@@ -49,6 +49,8 @@ def dispatch(name: str, args: str, context: dict) -> Optional[CommandResult]:
     Returns:
         CommandResult or None if command not found
     """
+    from cas_logic import templates
+    
     name = name.lower()
     
     # Resolve alias
@@ -62,7 +64,7 @@ def dispatch(name: str, args: str, context: dict) -> Optional[CommandResult]:
         except Exception as e:
             print(f"[COMMAND ERROR] {name}: {e}")
             result = CommandResult()
-            result.add_text(f"**[CAS ERROR]** Command `{name}` failed: {e}")
+            result.add_text(templates.format_command_error(name, str(e)))
             return result
     
     return None
