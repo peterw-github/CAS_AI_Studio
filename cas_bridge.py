@@ -263,6 +263,7 @@ def process_command_queue(driver):
         
         # Process each response
         text_parts = []
+        has_file_attachment = False
         
         for resp in responses:
             resp_type = resp.get('type')
@@ -272,22 +273,27 @@ def process_command_queue(driver):
             
             elif resp_type == 'file_upload':
                 handle_file_upload(box, resp['path'])
+                has_file_attachment = True
                 text_parts.append(resp['message'])
             
             elif resp_type == 'screenshot':
                 handle_screenshot(box)
+                has_file_attachment = True
                 text_parts.append(resp['message'])
             
             elif resp_type == 'screen_record':
                 handle_screen_record(box)
+                has_file_attachment = True
                 text_parts.append(resp['message'])
             
             elif resp_type == 'phone_photo':
                 handle_phone_photo(box)
+                has_file_attachment = True
                 text_parts.append(resp['message'])
             
             elif resp_type == 'phone_video':
                 handle_phone_video(box)
+                has_file_attachment = True
                 text_parts.append(resp['message'])
             
             elif resp_type == 'delete_file':
@@ -297,6 +303,11 @@ def process_command_queue(driver):
         if text_parts:
             full_text = "\n\n".join(text_parts)
             handle_text(box, full_text)
+        
+        # Wait for AI Studio to process file attachments
+        if has_file_attachment:
+            print(f"[BRIDGE] File attached. Waiting {cfg.FILE_ATTACHMENT_WAIT}s for AI Studio processing...")
+            time.sleep(cfg.FILE_ATTACHMENT_WAIT)
         
         # Submit
         print("[BRIDGE] Submitting...")

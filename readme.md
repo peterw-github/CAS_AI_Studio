@@ -4,25 +4,25 @@
 
 This document explains the internal architecture of CAS for developers who want to understand, maintain, or extend the system.
 
-------
+---
 
 ## Table of Contents
 
-1. [Overview](https://claude.ai/chat/92a6dfaa-9463-41da-a626-ac98f0dd0033#overview)
-2. [Architecture](https://claude.ai/chat/92a6dfaa-9463-41da-a626-ac98f0dd0033#architecture)
-3. [Process Communication](https://claude.ai/chat/92a6dfaa-9463-41da-a626-ac98f0dd0033#process-communication)
-4. [Directory Structure](https://claude.ai/chat/92a6dfaa-9463-41da-a626-ac98f0dd0033#directory-structure)
-5. [Core Components](https://claude.ai/chat/92a6dfaa-9463-41da-a626-ac98f0dd0033#core-components)
-6. [Command System](https://claude.ai/chat/92a6dfaa-9463-41da-a626-ac98f0dd0033#command-system)
-7. [Adding New Commands](https://claude.ai/chat/92a6dfaa-9463-41da-a626-ac98f0dd0033#adding-new-commands)
-8. [Protocol Reference](https://claude.ai/chat/92a6dfaa-9463-41da-a626-ac98f0dd0033#protocol-reference)
-9. [Configuration](https://claude.ai/chat/92a6dfaa-9463-41da-a626-ac98f0dd0033#configuration)
-10. [Dependencies](https://claude.ai/chat/92a6dfaa-9463-41da-a626-ac98f0dd0033#dependencies)
-11. [Data Flow](https://claude.ai/chat/92a6dfaa-9463-41da-a626-ac98f0dd0033#data-flow)
-12. [Known Limitations](https://claude.ai/chat/92a6dfaa-9463-41da-a626-ac98f0dd0033#known-limitations)
-13. [Troubleshooting](https://claude.ai/chat/92a6dfaa-9463-41da-a626-ac98f0dd0033#troubleshooting)
+1. [Overview](#overview)
+2. [Architecture](#architecture)
+3. [Process Communication](#process-communication)
+4. [Directory Structure](#directory-structure)
+5. [Core Components](#core-components)
+6. [Command System](#command-system)
+7. [Adding New Commands](#adding-new-commands)
+8. [Protocol Reference](#protocol-reference)
+9. [Configuration](#configuration)
+10. [Dependencies](#dependencies)
+11. [Data Flow](#data-flow)
+12. [Known Limitations](#known-limitations)
+13. [Troubleshooting](#troubleshooting)
 
-------
+---
 
 ## Overview
 
@@ -37,7 +37,7 @@ CAS (Cortana's Autonomous System) is a bridge system that allows an AI running i
 
 The system consists of two continuously-running Python processes that communicate via file-based message passing.
 
-------
+---
 
 ## Architecture
 
@@ -85,7 +85,7 @@ Separating the Bridge and Brain provides:
 3. **Debuggability**: Can restart one without affecting the other
 4. **Timing Independence**: Brain manages its own heartbeat schedule
 
-------
+---
 
 ## Process Communication
 
@@ -106,14 +106,13 @@ The two processes communicate via two files:
 ### File Locking
 
 There is no explicit file locking. The system relies on:
-
 - Small file sizes (fast writes)
 - Single writer per file
 - Atomic file operations (write + close before reader checks)
 
 This simple approach works because the timing is naturally staggered.
 
-------
+---
 
 ## Directory Structure
 
@@ -150,7 +149,7 @@ cas_refactored/
     └── screen_record.py  # OBS integration for recording
 ```
 
-------
+---
 
 ## Core Components
 
@@ -208,7 +207,6 @@ pattern = r'(?m)^`?!CAS\s+(\w+)(?:\s+(.*?))?`?$'
 ```
 
 Returns `ParsedCommand` objects with:
-
 - `name`: Command name (lowercase)
 - `args`: Arguments (cleaned of surrounding quotes)
 - `raw_match`: Original matched text
@@ -242,7 +240,7 @@ def format_screenshot_payload() -> str:
 # ... etc
 ```
 
-------
+---
 
 ## Command System
 
@@ -262,7 +260,6 @@ def handle_mycommand(args: str, context: dict) -> CommandResult:
 ```
 
 The registry (`cas_core/commands/__init__.py`) maintains:
-
 - `_COMMANDS`: Dict mapping command names to handlers
 - `_ALIASES`: Dict mapping aliases to primary names
 
@@ -284,23 +281,22 @@ The registry (`cas_core/commands/__init__.py`) maintains:
 ### Context Dict
 
 Handlers receive a `context` dict containing:
-
 - `interval`: Current heartbeat interval in seconds
 
 This can be extended to pass additional state to handlers.
 
-------
+---
 
 ## Adding New Commands
 
 ### Step 1: Choose the Right Module
 
-| Module       | Purpose                         |
-| ------------ | ------------------------------- |
-| `system.py`  | File/OS operations              |
-| `vision.py`  | Screenshots, recordings, camera |
-| `memory.py`  | Persistence, logging            |
-| `control.py` | System control, settings        |
+| Module | Purpose |
+|--------|---------|
+| `system.py` | File/OS operations |
+| `vision.py` | Screenshots, recordings, camera |
+| `memory.py` | Persistence, logging |
+| `control.py` | System control, settings |
 
 Or create a new module in `cas_core/commands/`.
 
@@ -356,21 +352,21 @@ from cas_core.commands import newmodule  # Add this
 
 Add the command to `commands_explained.md`.
 
-------
+---
 
 ## Protocol Reference
 
 ### Response Types
 
-| Type            | Fields            | Bridge Action                                          |
-| --------------- | ----------------- | ------------------------------------------------------ |
-| `text`          | `text`            | Paste text into input                                  |
-| `file_upload`   | `path`, `message` | Copy file to clipboard, paste, add message             |
-| `screenshot`    | `message`         | Take screenshot, paste, add message                    |
-| `screen_record` | `message`         | Paste from clipboard (OBS already copied), add message |
-| `phone_photo`   | `message`         | Paste from clipboard (ADB already copied), add message |
-| `phone_video`   | `message`         | Paste from clipboard (ADB already copied), add message |
-| `delete_file`   | `filename`        | Find and delete message containing file                |
+| Type | Fields | Bridge Action |
+|------|--------|---------------|
+| `text` | `text` | Paste text into input |
+| `file_upload` | `path`, `message` | Copy file to clipboard, paste, add message |
+| `screenshot` | `message` | Take screenshot, paste, add message |
+| `screen_record` | `message` | Paste from clipboard (OBS already copied), add message |
+| `phone_photo` | `message` | Paste from clipboard (ADB already copied), add message |
+| `phone_video` | `message` | Paste from clipboard (ADB already copied), add message |
+| `delete_file` | `filename` | Find and delete message containing file |
 
 ### JSON Wire Format
 
@@ -382,7 +378,7 @@ Add the command to `commands_explained.md`.
 ]
 ```
 
-------
+---
 
 ## Configuration
 
@@ -420,7 +416,7 @@ MONITORS = 0                    # 0=all, 1/2/3=specific monitor
 SCREEN_RECORDING_DURATION = 10  # OBS recording length (seconds)
 ```
 
-------
+---
 
 ## Dependencies
 
@@ -454,7 +450,7 @@ requests          # HTTP client (for phone camera)
 chrome.exe --remote-debugging-port=9222
 ```
 
-------
+---
 
 ## Data Flow
 
@@ -497,7 +493,7 @@ AI Studio                       Bridge                          Brain
   ◄─────────────────────────────── Submit ──────────────────────────┤
 ```
 
-------
+---
 
 ## Known Limitations
 
@@ -529,7 +525,7 @@ AI Studio                       Bridge                          Brain
 - Large command outputs are dumped to file (>2000 chars)
 - No limit on file upload sizes (may timeout)
 
-------
+---
 
 ## Troubleshooting
 
@@ -540,7 +536,6 @@ selenium.common.exceptions.WebDriverException: Cannot connect to Chrome
 ```
 
 **Solution**: Ensure Chrome is running with remote debugging:
-
 ```bash
 chrome.exe --remote-debugging-port=9222
 ```
@@ -566,3 +561,30 @@ The Bridge falls back to direct typing via Selenium when clipboard is unavailabl
 1. Check `VIBEVOICE_URL` is valid (Gradio URLs expire)
 2. Verify audio output device is available
 3. Check console for TTS connection errors
+
+---
+
+## Future Improvements
+
+Potential enhancements for future development:
+
+1. **Plugin System**: Auto-discover commands from a `plugins/` folder
+2. **Command History**: Track and replay recent commands
+3. **Error Recovery**: Retry failed commands with backoff
+4. **Web Interface**: Status dashboard for monitoring
+5. **Multi-platform**: Abstract Windows-specific code
+6. **Queue Persistence**: Save pending commands across restarts
+7. **Rate Limiting**: Prevent command flooding
+8. **Authentication**: Verify commands come from expected AI session
+
+---
+
+## License
+
+[Add your license here]
+
+---
+
+## Contributors
+
+[Add contributor information here]

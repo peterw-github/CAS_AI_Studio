@@ -36,6 +36,9 @@ MONITORS = 0  # 0 = all monitors, 1/2/3 = specific monitor
 # --- SCREEN RECORDING ---
 SCREEN_RECORDING_DURATION = 10  # Seconds (AI cannot change this)
 
+# --- FILE ATTACHMENT PROCESSING ---
+FILE_ATTACHMENT_WAIT = 5  # Seconds to wait for AI Studio to process attachments
+
 # --- NAVIGATION ---
 # "Home Base" directory for file operations
 AI_START_DIR = r"D:\GoogleDrive\Core\Cortana"
