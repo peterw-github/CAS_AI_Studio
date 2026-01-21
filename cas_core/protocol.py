@@ -142,3 +142,11 @@ def deserialize_responses(json_str: str) -> List[dict]:
         return json.loads(json_str)
     except json.JSONDecodeError:
         return []
+
+
+# --- MISC ---
+
+@dataclass
+class DeleteAllImages:
+    def to_dict(self):
+        return {"type": "delete_all_images"}

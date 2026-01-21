@@ -23,9 +23,10 @@ from cas_core import (
     CommandResult,
     TextResponse,
 )
-from cas_core.protocol import AmbientScreenshot, AmbientAudio
+from cas_core.protocol import AmbientScreenshot, AmbientAudio, DeleteAllImages
 from cas_logic.templates import format_heartbeat, format_ambient_heartbeat
 from cas_logic.cas_voice import CASVoiceEngine
+
 
 
 # Global voice instance
@@ -204,9 +205,33 @@ def main():
                 heartbeat = format_heartbeat(scheduler.interval // 60)
             
             responses.append(TextResponse(heartbeat))
-            
+
+            # 1. Send the Heartbeat (screenshots + audio)
             send_to_bridge(responses)
             print("[CAS BRAIN] Heartbeat sent.")
+
+            # --- NEW AUTO-CLEANUP SEQUENCE ---
+            print("[CAS BRAIN] Waiting for bridge to process heartbeat...")
+
+            # 2. Safety Wait: Don't overwrite the queue until Bridge has cleared it
+            # We give it up to 60 seconds to process the uploads
+            timeout = 60
+            while os.path.getsize(cfg.COMMAND_FILE) > 0 and timeout > 0:
+                time.sleep(1)
+                timeout -= 1
+
+            if timeout > 0:
+                # 3. User Requested Delay: Wait 5 seconds after processing is done
+                print("[CAS BRAIN] Heartbeat processed. Waiting 5s before cleanup...")
+                time.sleep(5)
+
+                # 4. Send the Cleanup Command
+                print("[CAS BRAIN] Sending auto-cleanup command...")
+                send_to_bridge([DeleteAllImages()])
+            else:
+                print("[CAS BRAIN] Warning: Bridge took too long, skipping cleanup.")
+            # ---------------------------------
+
             scheduler.schedule_next()
         
         # Wait (with interrupt detection and ambient capture)

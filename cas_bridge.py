@@ -314,6 +314,44 @@ def handle_delete_file(driver, filename: str):
         return False
 
 
+def handle_delete_all_images(driver):
+    """Find and delete all chat turns containing an image."""
+    print("[BRIDGE] Starting batch image deletion...")
+    count = 0
+
+    # Loop until no images remain
+    while True:
+        try:
+            # 1. Find all image containers
+            images = driver.find_elements(By.CLASS_NAME, "image-container")
+            if not images:
+                print(f"[BRIDGE] Cleanup complete. Deleted {count} images.")
+                break
+
+            # 2. Target the last one (bottom-up is safer)
+            target = images[-1]
+            turn = target.find_element(By.XPATH, "ancestor::ms-chat-turn")
+
+            # 3. Open menu and delete
+            driver.execute_script(
+                "arguments[0].querySelector('button[aria-label=\"Open options\"]').click()",
+                turn
+            )
+            time.sleep(0.5)
+
+            WebDriverWait(driver, 3).until(
+                EC.element_to_be_clickable((By.XPATH, "//span[text()='Delete']"))
+            ).click()
+
+            count += 1
+            time.sleep(2.0)  # Wait for UI to update
+
+        except Exception as e:
+            print(f"[BRIDGE] Batch delete interrupted: {e}")
+            break
+
+    return True
+
 # --- MAIN PROCESSING ---
 
 def process_command_queue(driver):
@@ -406,6 +444,9 @@ def process_command_queue(driver):
             
             elif resp_type == 'delete_file':
                 handle_delete_file(driver, resp['filename'])
+
+            elif resp_type == 'delete_all_images':
+                handle_delete_all_images(driver)
         
         # Log ambient summary
         if ambient_screenshot_count > 0:
