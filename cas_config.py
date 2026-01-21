@@ -7,7 +7,7 @@ COMMAND_FILE = "command_queue.txt"
 CWD_FILE = "cwd_state.txt"
 
 # --- TIMING ---
-DEFAULT_INTERVAL = 10 * 60  # 10 minutes in seconds
+DEFAULT_INTERVAL = 1 * 60  # 10 minutes in seconds
 BRIDGE_LOOP_DELAY = 1       # Seconds between bridge loop iterations
 CLIPBOARD_TIMEOUT = 5
 
