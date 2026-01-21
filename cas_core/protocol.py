@@ -76,6 +76,39 @@ class DeleteFile:
         return {"type": "delete_file", "filename": self.filename}
 
 
+# --- AMBIENT MODE RESPONSE TYPES ---
+
+@dataclass
+class AmbientScreenshot:
+    """
+    Screenshot from ambient capture (pre-saved to file).
+    Unlike regular Screenshot, this uploads from a specific file path.
+    """
+    path: str
+    label: str  # e.g., "T-30s", "T-20s", "T-10s", "T-0s"
+    
+    def to_dict(self):
+        return {
+            "type": "ambient_screenshot",
+            "path": self.path,
+            "label": self.label
+        }
+
+
+@dataclass
+class AmbientAudio:
+    """Audio recording from ambient capture."""
+    path: str
+    duration: float  # Duration in seconds
+    
+    def to_dict(self):
+        return {
+            "type": "ambient_audio",
+            "path": self.path,
+            "duration": self.duration
+        }
+
+
 # --- COMMAND RESULT (Wrapper) ---
 
 @dataclass

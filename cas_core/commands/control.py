@@ -1,39 +1,43 @@
 """
-Control commands: freq, stop, prompt_now, help
+Control commands: freq, stop, prompt_now, help, ambient
 """
 
-import os
-
+import cas_config as cfg
 from cas_core.commands import register
-from cas_core.protocol import CommandResult
+from cas_core.protocol import CommandResult, TextResponse
 from cas_logic import templates
 
 
 @register("freq", aliases=["frequency", "timer", "prompt_frequency"])
 def handle_freq(args: str, context: dict) -> CommandResult:
-    """Set the heartbeat frequency in minutes."""
+    """Change the heartbeat frequency."""
     result = CommandResult()
     
+    if not args:
+        current = context.get('interval', cfg.DEFAULT_INTERVAL) // 60
+        result.add_text(f"**[CAS]** Current frequency: {current} minutes.")
+        return result
+    
     try:
-        # Clean up the argument
-        clean_args = args.replace("`", "").replace("[", "").replace("]", "").strip()
-        minutes = int(clean_args)
+        minutes = int(args)
         
+        # Validate range
         if minutes < 1:
-            result.add_text(templates.format_freq_error_too_low())
+            result.add_text("**[CAS ERROR]** Minimum frequency is 1 minute.")
             return result
         
         if minutes > 1440:  # 24 hours
-            result.add_text(templates.format_freq_error_too_high())
+            result.add_text("**[CAS ERROR]** Maximum frequency is 1440 minutes (24 hours).")
             return result
         
-        print(f"[CMD] Frequency set to {minutes}m")
-        result.new_interval = minutes * 60
-        result.add_text(templates.format_freq_confirm(minutes))
+        # Set new interval
+        result.new_interval = minutes * 60  # Convert to seconds
+        result.add_text(f"**[CAS]** Frequency set to {minutes} minutes.")
+        
+        print(f"[CMD] Frequency changed to {minutes} minutes")
         
     except ValueError:
-        print(f"[CMD ERROR] Invalid frequency: {args}")
-        result.add_text(templates.format_freq_error_invalid(args))
+        result.add_text(f"**[CAS ERROR]** Invalid number: `{args}`")
     
     return result
 
@@ -42,11 +46,9 @@ def handle_freq(args: str, context: dict) -> CommandResult:
 def handle_stop(args: str, context: dict) -> CommandResult:
     """Stop the CAS brain loop."""
     result = CommandResult()
-    
-    print("[CMD] Stop requested.")
     result.should_stop = True
-    result.add_text(templates.format_stop_confirm())
-    
+    result.add_text("**[CAS]** Shutting down... Goodbye.")
+    print("[CMD] Stop command received")
     return result
 
 
@@ -54,35 +56,85 @@ def handle_stop(args: str, context: dict) -> CommandResult:
 def handle_prompt_now(args: str, context: dict) -> CommandResult:
     """Trigger an immediate prompt."""
     result = CommandResult()
-    
-    print("[CMD] Prompt now triggered.")
-    interval_mins = context.get('interval', 600) // 60
-    result.add_text(templates.format_prompt_now(interval_mins))
-    
+    # This is handled by the fact that we always respond to commands
+    # The response itself acts as the "prompt"
+    result.add_text("**[CAS]** Prompt triggered.")
     return result
 
 
 @register("help")
 def handle_help(args: str, context: dict) -> CommandResult:
-    """Upload the command help file."""
+    """Display the help file."""
     result = CommandResult()
     
-    print("[CMD] Help requested.")
+    try:
+        with open("commands_explained.md", "r", encoding="utf-8") as f:
+            help_text = f.read()
+        result.add_text(help_text)
+    except FileNotFoundError:
+        result.add_text("**[CAS ERROR]** Help file not found.")
+    except Exception as e:
+        result.add_text(f"**[CAS ERROR]** Failed to read help: {e}")
     
-    # Try multiple possible locations for the help file
-    possible_paths = [
-        "commands_explained.md",
-        os.path.join(os.path.dirname(__file__), "..", "..", "commands_explained.md"),
-    ]
+    return result
+
+
+@register("ambient", aliases=["context", "ambient_mode"])
+def handle_ambient(args: str, context: dict) -> CommandResult:
+    """
+    Toggle or control ambient capture mode.
     
-    for path in possible_paths:
-        if os.path.exists(path):
-            from cas_core.protocol import FileUpload
-            result.responses.append(FileUpload(
-                path=os.path.abspath(path),
-                message=templates.format_help_payload()
-            ))
-            return result
+    Usage:
+        !CAS ambient        - Toggle on/off
+        !CAS ambient on     - Enable
+        !CAS ambient off    - Disable
+        !CAS ambient status - Show current status
+    """
+    result = CommandResult()
     
-    result.add_text(templates.format_help_error_not_found())
+    try:
+        from cas_core.ambient import get_ambient_capture
+        ambient = get_ambient_capture()
+        
+        args_lower = args.lower().strip() if args else ""
+        
+        if args_lower in ("on", "enable", "1", "true"):
+            ambient.set_enabled(True)
+            result.add_text("**[CAS]** Ambient mode **enabled**. "
+                          "Screenshots and audio will be captured before each heartbeat.")
+        
+        elif args_lower in ("off", "disable", "0", "false"):
+            ambient.set_enabled(False)
+            result.add_text("**[CAS]** Ambient mode **disabled**. "
+                          "Heartbeats will be text-only.")
+        
+        elif args_lower in ("status", "state", "?"):
+            state = "enabled" if ambient.is_enabled() else "disabled"
+            interval = context.get('interval', cfg.DEFAULT_INTERVAL)
+            
+            status_lines = [
+                f"**[CAS AMBIENT STATUS]**",
+                f"- Mode: **{state}**",
+                f"- Heartbeat interval: {interval // 60} minutes",
+            ]
+            
+            if ambient.is_enabled():
+                if interval >= 30:
+                    status_lines.append(f"- Captures: 4 screenshots + 30s audio per heartbeat")
+                else:
+                    status_lines.append(f"- ⚠️ Interval too short (<30s) - ambient capture skipped")
+            
+            result.add_text("\n".join(status_lines))
+        
+        else:
+            # Toggle
+            new_state = ambient.toggle()
+            state_str = "enabled" if new_state else "disabled"
+            result.add_text(f"**[CAS]** Ambient mode **{state_str}**.")
+        
+        print(f"[CMD] Ambient mode: {ambient.is_enabled()}")
+        
+    except ImportError as e:
+        result.add_text(f"**[CAS ERROR]** Ambient module not available: {e}")
+    
     return result

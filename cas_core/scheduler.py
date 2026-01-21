@@ -5,11 +5,13 @@ Handles:
 - Heartbeat intervals
 - Sleep with interrupt detection
 - Message file monitoring
+- Ambient capture coordination
 """
 
 import os
 import time
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
+from dataclasses import dataclass
 
 import cas_config as cfg
 
@@ -83,12 +85,30 @@ class HeartbeatScheduler:
     - Tracking next heartbeat time
     - Detecting if we should send immediately vs wait
     - Adjusting interval dynamically
+    - Coordinating ambient capture sequence
     """
+    
+    # Ambient capture starts this many seconds before heartbeat
+    AMBIENT_LEAD_TIME = 30
     
     def __init__(self, interval_seconds: int):
         self.interval = interval_seconds
         self.next_heartbeat = time.time()
         self.last_mtime = get_message_mtime()
+        
+        # Ambient capture integration
+        self._ambient_capture = None
+        self._ambient_data = None
+    
+    def _get_ambient_capture(self):
+        """Lazy-load ambient capture module."""
+        if self._ambient_capture is None:
+            try:
+                from cas_core.ambient import get_ambient_capture
+                self._ambient_capture = get_ambient_capture()
+            except ImportError as e:
+                print(f"[SCHEDULER] Ambient capture not available: {e}")
+        return self._ambient_capture
     
     def set_interval(self, seconds: int):
         """Update the heartbeat interval."""
@@ -102,24 +122,100 @@ class HeartbeatScheduler:
     def schedule_next(self):
         """Schedule the next heartbeat from now."""
         self.next_heartbeat = time.time() + self.interval
+        
+        # Note: We do NOT clear ambient data here anymore.
+        # Files need to persist until the bridge processes them.
+        # They will be cleared at the start of the next capture sequence.
     
     def wait_for_next(self) -> bool:
         """
         Wait until next heartbeat or new message.
         
+        Integrates ambient capture: if enabled and interval >= 30s,
+        will run capture sequence in the final 30 seconds.
+        
         Returns True if interrupted by new message.
         """
         remaining = self.next_heartbeat - time.time()
-        interrupted = smart_wait(remaining, self.last_mtime)
         
-        if interrupted:
-            self.last_mtime = get_message_mtime()
+        # Get ambient capture instance
+        ambient = self._get_ambient_capture()
+        ambient_enabled = ambient and ambient.is_enabled()
         
-        return interrupted
+        # Check if we should do ambient capture
+        # Only if: enabled, interval >= 30s, and we have enough time
+        should_capture = (
+            ambient_enabled and 
+            self.interval >= self.AMBIENT_LEAD_TIME and
+            remaining > self.AMBIENT_LEAD_TIME
+        )
+        
+        if should_capture:
+            # Phase 1: Wait until T-30s (before ambient capture starts)
+            wait_before_ambient = remaining - self.AMBIENT_LEAD_TIME
+            
+            if wait_before_ambient > 0:
+                print(f"[SCHEDULER] Waiting {int(wait_before_ambient)}s, then ambient capture begins...")
+                interrupted = smart_wait(wait_before_ambient, self.last_mtime)
+                
+                if interrupted:
+                    self.last_mtime = get_message_mtime()
+                    return True
+            
+            # Phase 2: Run ambient capture sequence (30 seconds)
+            print("[SCHEDULER] Entering ambient capture window...")
+            
+            def check_interrupt():
+                return get_message_mtime() > self.last_mtime
+            
+            self._ambient_data = ambient.run_capture_sequence(check_interrupt)
+            
+            if self._ambient_data is None:
+                # Capture was interrupted
+                self.last_mtime = get_message_mtime()
+                return True
+            
+            # Capture complete, heartbeat is now due
+            return False
+        
+        else:
+            # No ambient capture - just wait normally
+            if ambient_enabled and self.interval < self.AMBIENT_LEAD_TIME:
+                print(f"[SCHEDULER] Ambient mode skipped (interval {self.interval}s < {self.AMBIENT_LEAD_TIME}s)")
+            
+            interrupted = smart_wait(remaining, self.last_mtime)
+            
+            if interrupted:
+                self.last_mtime = get_message_mtime()
+            
+            return interrupted
+    
+    def get_ambient_data(self):
+        """
+        Get captured ambient data (if any).
+        
+        Returns AmbientData object or None.
+        """
+        return self._ambient_data
+    
+    def has_ambient_data(self) -> bool:
+        """Check if we have ambient data to send."""
+        return self._ambient_data is not None and (
+            len(self._ambient_data.screenshot_paths) > 0 or 
+            self._ambient_data.audio_path is not None
+        )
     
     def update_mtime(self):
         """Update the tracked message mtime (call after processing)."""
         self.last_mtime = get_message_mtime()
+        
+        # Cancel any in-progress ambient capture
+        ambient = self._get_ambient_capture()
+        if ambient:
+            if ambient._audio_recorder or len(ambient.data.screenshot_paths) > 0:
+                print("[SCHEDULER] Cancelling ambient capture due to conversation activity")
+            ambient.cancel()
+            self._ambient_data = None
     
     def adjust_for_recent_activity(self):
         """

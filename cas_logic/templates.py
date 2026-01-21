@@ -1,160 +1,110 @@
 """
-Message templates for CAS responses.
+Message templates for CAS.
 
-ALL user-facing messages are defined here for easy customization.
+All user-facing message strings are defined here for easy customization.
 """
 
-import datetime
-
-
-def get_timestamp() -> str:
-    """Get current timestamp in ISO format."""
-    return datetime.datetime.now().isoformat(timespec='minutes')
-
-
-# =============================================================================
-# HEARTBEAT & CORE
-# =============================================================================
 
 def format_heartbeat(interval_minutes: int) -> str:
+    """Format the standard heartbeat message."""
+    return f"**[CAS HEARTBEAT]** Next pulse in {interval_minutes} minutes."
+
+
+def format_ambient_heartbeat(interval_minutes: int, screenshot_count: int, has_audio: bool) -> str:
+    """Format heartbeat with ambient context summary."""
+    parts = []
+    
+    if screenshot_count > 0:
+        parts.append(f"{screenshot_count} screenshots")
+    
+    if has_audio:
+        parts.append("30s audio")
+    
+    context_str = " + ".join(parts) if parts else "no captures"
+    
     return (
-        f"**[CAS HEARTBEAT]**\n"
-        f"`Time: {get_timestamp()}`\n"
-        f"`Current Prompt Frequency: {interval_minutes} minutes`\n"
-        f"`!CAS help` for available features."
+        f"**[CAS HEARTBEAT]** Ambient context attached ({context_str}). "
+        f"Next pulse in {interval_minutes} minutes."
     )
 
 
-# =============================================================================
-# SYSTEM COMMANDS (exec, cd, upload, delete)
-# =============================================================================
-
 def format_result(cmd: str, output: str) -> str:
-    """Command execution result."""
-    return f"**[CAS RESULT]**\n`CMD: {cmd}`\n```\n{output}\n```"
+    """Format command execution result."""
+    return f"**[CAS RESULT: `{cmd}`]**\n```\n{output}\n```"
+
+
+def format_result_file(cmd: str, filename: str) -> str:
+    """Format command result when output was saved to file."""
+    return f"**[CAS RESULT: `{cmd}`]** Output saved to `{filename}` (attached)."
+
+
+def format_error(cmd: str, error: str) -> str:
+    """Format command error message."""
+    return f"**[CAS ERROR: `{cmd}`]** {error}"
 
 
 def format_upload_payload(filename: str) -> str:
-    return f"**[CAS UPLOAD]** File `{filename}` attached."
+    """Format message for file upload."""
+    return f"**[CAS FILE]** `{filename}` attached."
 
-
-def format_upload_error_not_found(path: str) -> str:
-    return f"**[CAS ERROR]** File not found: `{path}`"
-
-
-def format_upload_error_no_file() -> str:
-    return "**[CAS ERROR]** No filename specified."
-
-
-def format_delete_confirm(filename: str) -> str:
-    return f"**[CAS DELETE]** Removed `{filename}` from conversation."
-
-
-def format_delete_error_no_file() -> str:
-    return "**[CAS ERROR]** No filename specified for deletion."
-
-
-# =============================================================================
-# VISION COMMANDS (screenshot, screen_record, see, watch)
-# =============================================================================
 
 def format_screenshot_payload() -> str:
-    return "**[CAS VISION]** Screenshot attached."
+    """Format message for screenshot."""
+    return "**[CAS SCREENSHOT]** Current screen captured."
 
 
 def format_screen_record_payload(duration: int) -> str:
-    return f"**[CAS RECORDING]** Screen recording ({duration}s) attached."
+    """Format message for screen recording."""
+    return f"**[CAS SCREEN RECORD]** {duration}s recording attached."
 
 
 def format_screen_record_error() -> str:
-    return "**[CAS ERROR]** Recording failed. Is OBS open?"
+    """Format error message for screen recording failure."""
+    return "**[CAS ERROR]** Screen recording failed. Is OBS running with WebSocket enabled?"
 
 
 def format_phone_photo_payload() -> str:
-    return "**[CAS EYES]** Phone camera snapshot attached."
+    """Format message for phone camera photo."""
+    return "**[CAS VISION]** Phone camera snapshot attached."
 
 
 def format_phone_photo_error() -> str:
-    return "**[CAS ERROR]** Could not capture phone camera. Is IP Webcam running?"
+    """Format error message for phone photo failure."""
+    return "**[CAS ERROR]** Phone camera failed. Is IP Webcam running?"
 
 
 def format_phone_video_payload() -> str:
-    return "**[CAS EYES]** Phone video attached."
+    """Format message for phone camera video."""
+    return "**[CAS VISION]** Phone camera video (10s) attached."
 
 
 def format_phone_video_error() -> str:
-    return "**[CAS ERROR]** Could not retrieve video from phone."
+    """Format error message for phone video failure."""
+    return "**[CAS ERROR]** Phone video recording failed. Check ADB connection."
 
 
-# =============================================================================
-# MEMORY COMMANDS (log, remember)
-# =============================================================================
-
-def format_log_success(detail: str) -> str:
-    return f"**[CAS LOG]** {detail}"
+def format_log_success(entry: str) -> str:
+    """Format confirmation for journal entry."""
+    preview = entry[:50] + "..." if len(entry) > 50 else entry
+    return f"**[CAS LOG]** Entry recorded: \"{preview}\""
 
 
-def format_log_error_empty() -> str:
-    return "**[CAS ERROR]** Empty log message."
+def format_remember_success(content: str) -> str:
+    """Format confirmation for critical memory."""
+    preview = content[:50] + "..." if len(content) > 50 else content
+    return f"**[CAS REMEMBER]** Stored: \"{preview}\""
 
 
-def format_remember_success(detail: str) -> str:
-    return f"**[CAS MEMORY]** {detail}"
+def format_cd_success(new_dir: str) -> str:
+    """Format confirmation for directory change."""
+    return f"**[CAS]** Working directory: `{new_dir}`"
 
 
-def format_remember_error_empty() -> str:
-    return "**[CAS ERROR]** Empty memory content."
+def format_cd_error(path: str) -> str:
+    """Format error for directory change failure."""
+    return f"**[CAS ERROR]** Directory not found: `{path}`"
 
 
-# =============================================================================
-# CONTROL COMMANDS (freq, stop, prompt_now, help)
-# =============================================================================
-
-def format_freq_confirm(interval_minutes: int) -> str:
-    return f"**[CAS SYSTEM]** Frequency updated to {interval_minutes} minutes."
-
-
-def format_freq_error_invalid(value: str) -> str:
-    return f"**[CAS ERROR]** Invalid frequency value: `{value}`"
-
-
-def format_freq_error_too_low() -> str:
-    return "**[CAS ERROR]** Frequency must be at least 1 minute."
-
-
-def format_freq_error_too_high() -> str:
-    return "**[CAS ERROR]** Frequency cannot exceed 1440 minutes (24 hours)."
-
-
-def format_stop_confirm() -> str:
-    return "**[CAS SYSTEM]** Shutting down..."
-
-
-def format_prompt_now(interval_minutes: int) -> str:
-    return (
-        f"**[CAS PROMPT]**\n"
-        f"`Time: {get_timestamp()}`\n"
-        f"`Current Prompt Frequency: {interval_minutes} minutes`\n"
-        f"\n"
-        f"You triggered `!CAS prompt_now`. You're welcome to think about anything you want, and reply however you want."
-    )
-
-
-def format_help_payload() -> str:
-    return "**[CAS HELP]** Manual attached."
-
-
-def format_help_error_not_found() -> str:
-    return "**[CAS ERROR]** Help file not found."
-
-
-def format_help_error_read(error: str) -> str:
-    return f"**[CAS ERROR]** Could not read help file: {error}"
-
-
-# =============================================================================
-# GENERIC ERRORS
-# =============================================================================
-
-def format_command_error(cmd: str, error: str) -> str:
-    return f"**[CAS ERROR]** `{cmd}` failed: {error}"
+def format_delete_success(filename: str) -> str:
+    """Format confirmation for file deletion."""
+    return f"**[CAS]** Deleted: `{filename}`"

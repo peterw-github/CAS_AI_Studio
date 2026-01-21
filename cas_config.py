@@ -42,3 +42,14 @@ FILE_ATTACHMENT_WAIT = 5  # Seconds to wait for AI Studio to process attachments
 # --- NAVIGATION ---
 # "Home Base" directory for file operations
 AI_START_DIR = r"D:\GoogleDrive\Core\Cortana"
+
+# --- AMBIENT MODE SETTINGS ---
+# Ambient mode captures screenshots + audio in the 30 seconds before each heartbeat
+AMBIENT_MODE_DEFAULT = True  # Whether ambient mode is enabled by default
+
+# Temp directory for ambient captures (screenshots + audio)
+AMBIENT_TEMP_DIR = "ambient_temp"
+
+# Audio is auto-detected using WASAPI loopback (records what you hear)
+# Run test_wasapi_loopback.py to verify it's working
+# Requires: pip install pyaudiowpatch

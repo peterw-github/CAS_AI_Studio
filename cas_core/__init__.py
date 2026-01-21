@@ -11,6 +11,8 @@ from cas_core.protocol import (
     PhonePhoto,
     PhoneVideo,
     DeleteFile,
+    AmbientScreenshot,
+    AmbientAudio,
     serialize_responses,
     deserialize_responses,
 )
@@ -29,6 +31,8 @@ __all__ = [
     'PhonePhoto',
     'PhoneVideo',
     'DeleteFile',
+    'AmbientScreenshot',
+    'AmbientAudio',
     'serialize_responses',
     'deserialize_responses',
     

@@ -5,6 +5,7 @@ This module:
 1. Monitors AI Studio for new messages
 2. Copies them to the latest_message.md file
 3. Reads the command queue and executes UI actions
+4. Handles ambient mode attachments (screenshots + audio)
 """
 
 import time
@@ -14,7 +15,7 @@ import pyperclip
 
 import cas_config as cfg
 from cas_core import deserialize_responses
-from cas_core.clipboard import copy_file_to_clipboard
+from cas_core.clipboard import copy_file_to_clipboard, copy_image_to_clipboard
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -179,6 +180,86 @@ def handle_screenshot(box):
     return False
 
 
+def handle_ambient_screenshot(driver, box, path: str, label: str):
+    """
+    Upload a pre-captured ambient screenshot from file.
+    
+    Args:
+        driver: Selenium WebDriver instance
+        box: Input box element
+        path: Path to screenshot file
+        label: Label for the screenshot (e.g., "T-30s")
+    
+    Returns True on success.
+    """
+    print(f"[BRIDGE] Processing ambient screenshot: {label}")
+    
+    if not os.path.exists(path):
+        print(f"[BRIDGE ERROR] Ambient screenshot not found: {path}")
+        return False
+    
+    file_size = os.path.getsize(path)
+    print(f"[BRIDGE] File exists: {path} ({file_size} bytes)")
+    
+    # Load image and copy to clipboard
+    try:
+        from PIL import Image
+        img = Image.open(path)
+        print(f"[BRIDGE] Image loaded: {img.size[0]}x{img.size[1]}")
+        
+        success = copy_image_to_clipboard(img)
+        if not success:
+            print(f"[BRIDGE ERROR] Failed to copy image to clipboard")
+            return False
+        
+        # Re-click the input box to ensure focus
+        box.click()
+        time.sleep(0.3)
+        
+        # Paste
+        box.send_keys(Keys.CONTROL, 'v')
+        print(f"[BRIDGE] Pasted ambient screenshot: {label}")
+        
+        # Wait for AI Studio to process the image attachment
+        time.sleep(2.5)
+        return True
+        
+    except Exception as e:
+        print(f"[BRIDGE ERROR] Failed to paste ambient screenshot: {e}")
+        import traceback
+        traceback.print_exc()
+        return False
+
+
+def handle_ambient_audio(box, path: str):
+    """
+    Upload ambient audio recording from file.
+    
+    Args:
+        box: Input box element
+        path: Path to audio file
+    
+    Returns True on success.
+    """
+    print(f"[BRIDGE] Processing ambient audio: {path}")
+    
+    if not os.path.exists(path):
+        print(f"[BRIDGE ERROR] Ambient audio not found: {path}")
+        return False
+    
+    file_size = os.path.getsize(path)
+    print(f"[BRIDGE] Audio file exists: {path} ({file_size / 1024:.1f} KB)")
+    
+    if copy_file_to_clipboard(path):
+        box.send_keys(Keys.CONTROL, 'v')
+        print(f"[BRIDGE] Pasted ambient audio")
+        time.sleep(2.0)
+        return True
+    else:
+        print(f"[BRIDGE ERROR] Failed to copy audio to clipboard")
+        return False
+
+
 def handle_screen_record(box):
     """Paste the screen recording (already in clipboard from OBS)."""
     box.send_keys(Keys.CONTROL, 'v')
@@ -254,6 +335,20 @@ def process_command_queue(driver):
             f.truncate(0)
             return
         
+        # Debug: show what we're processing
+        print(f"[BRIDGE] Got {len(responses)} response(s):")
+        for i, resp in enumerate(responses):
+            resp_type = resp.get('type', 'unknown')
+            if resp_type == 'ambient_screenshot':
+                print(f"  [{i}] ambient_screenshot: {resp.get('label')} -> {resp.get('path')}")
+            elif resp_type == 'ambient_audio':
+                print(f"  [{i}] ambient_audio: {resp.get('path')}")
+            elif resp_type == 'text':
+                preview = resp.get('text', '')[:50]
+                print(f"  [{i}] text: {preview}...")
+            else:
+                print(f"  [{i}] {resp_type}")
+        
         # Get input box
         try:
             box = get_input_box(driver)
@@ -264,6 +359,7 @@ def process_command_queue(driver):
         # Process each response
         text_parts = []
         has_file_attachment = False
+        ambient_screenshot_count = 0
         
         for resp in responses:
             resp_type = resp.get('type')
@@ -280,6 +376,18 @@ def process_command_queue(driver):
                 handle_screenshot(box)
                 has_file_attachment = True
                 text_parts.append(resp['message'])
+            
+            elif resp_type == 'ambient_screenshot':
+                # Ambient screenshots are pre-saved to files
+                success = handle_ambient_screenshot(driver, box, resp['path'], resp.get('label', ''))
+                if success:
+                    has_file_attachment = True
+                    ambient_screenshot_count += 1
+            
+            elif resp_type == 'ambient_audio':
+                success = handle_ambient_audio(box, resp['path'])
+                if success:
+                    has_file_attachment = True
             
             elif resp_type == 'screen_record':
                 handle_screen_record(box)
@@ -299,6 +407,10 @@ def process_command_queue(driver):
             elif resp_type == 'delete_file':
                 handle_delete_file(driver, resp['filename'])
         
+        # Log ambient summary
+        if ambient_screenshot_count > 0:
+            print(f"[BRIDGE] Attached {ambient_screenshot_count} ambient screenshots")
+        
         # Send accumulated text
         if text_parts:
             full_text = "\n\n".join(text_parts)
@@ -306,8 +418,13 @@ def process_command_queue(driver):
         
         # Wait for AI Studio to process file attachments
         if has_file_attachment:
-            print(f"[BRIDGE] File attached. Waiting {cfg.FILE_ATTACHMENT_WAIT}s for AI Studio processing...")
-            time.sleep(cfg.FILE_ATTACHMENT_WAIT)
+            # Ambient mode can have many files, give extra time
+            wait_time = cfg.FILE_ATTACHMENT_WAIT
+            if ambient_screenshot_count > 2:
+                wait_time = max(wait_time, ambient_screenshot_count * 2)
+            
+            print(f"[BRIDGE] File attached. Waiting {wait_time}s for AI Studio processing...")
+            time.sleep(wait_time)
         
         # Submit
         print("[BRIDGE] Submitting...")

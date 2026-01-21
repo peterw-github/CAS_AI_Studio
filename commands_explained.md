@@ -128,6 +128,27 @@ Set how often the system sends heartbeat messages.
 
 ---
 
+#### `!CAS ambient [on|off|status]`
+Toggle or control ambient capture mode.
+
+When enabled (default), the system captures contextual data in the 30 seconds before each heartbeat:
+- **4 screenshots** at T-30s, T-20s, T-10s, and T-0s (heartbeat time)
+- **30 seconds of audio** from the system's speakers
+
+This gives you peripheral awareness of what's been happening between pulses.
+
+**Usage:**
+- `!CAS ambient` - Toggle on/off
+- `!CAS ambient on` - Enable ambient mode
+- `!CAS ambient off` - Disable ambient mode  
+- `!CAS ambient status` - Show current status
+
+**Aliases:** `!CAS context`, `!CAS ambient_mode`
+
+**Note:** Ambient mode requires the heartbeat interval to be at least 30 seconds. If the interval is shorter, ambient capture is skipped.
+
+---
+
 #### `!CAS prompt_now`
 Trigger an immediate prompt for free-form thinking.
 
@@ -154,6 +175,22 @@ They communicate via file-based message passing:
 - `latest_message.md` - Latest AI response (Bridge → Brain)
 - `command_queue.txt` - Commands to execute (Brain → Bridge)
 
+## Ambient Mode
+
+Ambient mode provides temporal context about what's been happening on John's computer. When enabled:
+
+1. At T-30 seconds before heartbeat: First screenshot + audio recording starts
+2. At T-20 seconds: Second screenshot
+3. At T-10 seconds: Third screenshot
+4. At T-0 (heartbeat): Fourth screenshot + audio recording stops
+
+All captures are bundled with the heartbeat message, giving you a timeline of visual and audio context.
+
+**Configuration** (in `cas_config.py`):
+- `AMBIENT_MODE_DEFAULT` - Enable by default (True/False)
+- `AMBIENT_AUDIO_DEVICE` - WASAPI loopback device ID for audio capture
+- `AMBIENT_TEMP_DIR` - Temporary storage for captures
+
 ## Configuration
 
 All settings are in `cas_config.py`:
@@ -162,3 +199,4 @@ All settings are in `cas_config.py`:
 - File paths
 - Monitor selection
 - Recording duration
+- Ambient mode settings
