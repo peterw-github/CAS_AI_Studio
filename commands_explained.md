@@ -92,6 +92,16 @@ Record video using John's phone camera.
 
 ---
 
+#### `!CAS delete_images`
+Delete all images currently visible in the chat history.
+
+- **Warning:** This deletes the entire chat turn containing the image. If you wrote text in the same prompt as the image, it will be deleted too.
+- Used autonomously by the system to clean up ambient screenshots, but can be triggered manually.
+
+**Aliases:** `!CAS clear_images`, `!CAS cleanup_images`
+
+---
+
 ### Memory Commands
 
 #### `!CAS log [message]`
