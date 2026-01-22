@@ -214,14 +214,14 @@ def handle_ambient_screenshot(driver, box, path: str, label: str):
         
         # Re-click the input box to ensure focus
         box.click()
-        time.sleep(0.3)
+        time.sleep(0.2)
         
         # Paste
         box.send_keys(Keys.CONTROL, 'v')
         print(f"[BRIDGE] Pasted ambient screenshot: {label}")
         
         # Wait for AI Studio to process the image attachment
-        time.sleep(2.5)
+        time.sleep(0.4)
         return True
         
     except Exception as e:
@@ -253,7 +253,7 @@ def handle_ambient_audio(box, path: str):
     if copy_file_to_clipboard(path):
         box.send_keys(Keys.CONTROL, 'v')
         print(f"[BRIDGE] Pasted ambient audio")
-        time.sleep(2.0)
+        time.sleep(0.4)
         return True
     else:
         print(f"[BRIDGE ERROR] Failed to copy audio to clipboard")
@@ -319,36 +319,47 @@ def handle_delete_all_images(driver):
     print("[BRIDGE] Starting batch image deletion...")
     count = 0
 
-    # Loop until no images remain
     while True:
         try:
             # 1. Find all image containers
+            # We re-fetch every time to ensure we don't hit stale elements
             images = driver.find_elements(By.CLASS_NAME, "image-container")
             if not images:
                 print(f"[BRIDGE] Cleanup complete. Deleted {count} images.")
                 break
 
-            # 2. Target the last one (bottom-up is safer)
+            # 2. Target the last one (working backwards is usually more stable)
             target = images[-1]
             turn = target.find_element(By.XPATH, "ancestor::ms-chat-turn")
 
-            # 3. Open menu and delete
+            # 3. Open menu (Fast!)
             driver.execute_script(
                 "arguments[0].querySelector('button[aria-label=\"Open options\"]').click()",
                 turn
             )
-            time.sleep(0.5)
+            # Reduced from 0.5s -> 0.1s. The menu usually opens instantly.
+            time.sleep(0.1)
 
-            WebDriverWait(driver, 3).until(
+            # 4. Click Delete (Fast!)
+            # We use a short wait here just in case the animation stutters
+            WebDriverWait(driver, 2).until(
                 EC.element_to_be_clickable((By.XPATH, "//span[text()='Delete']"))
             ).click()
 
             count += 1
-            time.sleep(2.0)  # Wait for UI to update
+            print(f"[BRIDGE] Deleted image {count}")
+
+            # 5. Loop Delay (Critical for speed)
+            # Reduced from 2.0s -> 0.5s.
+            # This gives the DOM just enough time to remove the element so we don't
+            # accidentally try to delete the same one again in the next loop.
+            time.sleep(0.5)
 
         except Exception as e:
-            print(f"[BRIDGE] Batch delete interrupted: {e}")
-            break
+            # If we hit an error (like the element vanishing while we looked at it),
+            # just print a small debug msg and immediately try the next loop.
+            print(f"[BRIDGE] Retrying... ({e})")
+            continue
 
     return True
 
@@ -456,14 +467,12 @@ def process_command_queue(driver):
         if text_parts:
             full_text = "\n\n".join(text_parts)
             handle_text(box, full_text)
-        
+
         # Wait for AI Studio to process file attachments
         if has_file_attachment:
-            # Ambient mode can have many files, give extra time
+            # Use the fixed config time only (Ignore the screenshot multiplier)
             wait_time = cfg.FILE_ATTACHMENT_WAIT
-            if ambient_screenshot_count > 2:
-                wait_time = max(wait_time, ambient_screenshot_count * 2)
-            
+
             print(f"[BRIDGE] File attached. Waiting {wait_time}s for AI Studio processing...")
             time.sleep(wait_time)
         

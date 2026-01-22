@@ -53,3 +53,8 @@ AMBIENT_TEMP_DIR = "ambient_temp"
 # Audio is auto-detected using WASAPI loopback (records what you hear)
 # Run test_wasapi_loopback.py to verify it's working
 # Requires: pip install pyaudiowpatch
+
+# If Prompt contains files, then below is the umber of seconds to wait before sending the prompt.
+# Technically, the wait time should naturally be integrated into the various parts of the program that pull in files,
+# instead of just a hardcoded value here in the config for the 'end'.
+FILE_ATTACHMENT_WAIT = 1
