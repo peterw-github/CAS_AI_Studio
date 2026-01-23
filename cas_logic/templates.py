@@ -1,3 +1,6 @@
+from datetime import datetime
+from zoneinfo import ZoneInfo  # Available in Python 3.9+
+
 """
 Message templates for CAS.
 
@@ -6,8 +9,18 @@ All user-facing message strings are defined here for easy customization.
 
 
 def format_heartbeat(interval_minutes: int) -> str:
-    """Format the standard heartbeat message."""
-    return f"**[CAS HEARTBEAT]** Next pulse in {interval_minutes} minutes."
+    # Get current time in Melbourne (handles GMT+10/11 automatically)
+    melbourne_tz = ZoneInfo("Australia/Melbourne")
+    now = datetime.now(melbourne_tz)
+
+    # Format to ISO 8601: YYYY-MM-DDTHH:MM
+    timestamp = now.strftime("%Y-%m-%dT%H:%M")
+
+    return (
+        f"**[CAS Heartbeat]**\n"
+        f"Current Prompt Frequency: {interval_minutes} minutes\n"
+        f"`>>> [{timestamp}]`"
+    )
 
 
 def format_ambient_heartbeat(interval_minutes: int, screenshot_count: int, has_audio: bool) -> str:

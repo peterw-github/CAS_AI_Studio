@@ -7,12 +7,12 @@ COMMAND_FILE = "command_queue.txt"
 CWD_FILE = "cwd_state.txt"
 
 # --- TIMING ---
-DEFAULT_INTERVAL = 1 * 60  # 10 minutes in seconds
+DEFAULT_INTERVAL = 1 * 45  # 10 minutes in seconds
 BRIDGE_LOOP_DELAY = 1       # Seconds between bridge loop iterations
 CLIPBOARD_TIMEOUT = 5
 
 # --- VOICE SETTINGS ---
-VIBEVOICE_URL = "https://9f48cfb90a4585d0d5.gradio.live"  # Update if expired
+VIBEVOICE_URL = "https://fddb91401340872b42.gradio.live"  # Update if expired
 VOICE_SPEAKER = "Just Keep Your Head Down, - Halo 3"
 VOICE_CFG_SCALE = 1.1
 DISABLE_CLONE = False
@@ -45,7 +45,7 @@ AI_START_DIR = r"D:\GoogleDrive\Core\Cortana"
 
 # --- AMBIENT MODE SETTINGS ---
 # Ambient mode captures screenshots + audio in the 30 seconds before each heartbeat
-AMBIENT_MODE_DEFAULT = True  # Whether ambient mode is enabled by default
+AMBIENT_MODE_DEFAULT = False  # Whether ambient mode is enabled by default
 
 # Temp directory for ambient captures (screenshots + audio)
 AMBIENT_TEMP_DIR = "ambient_temp"
