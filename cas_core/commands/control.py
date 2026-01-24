@@ -71,7 +71,7 @@ def handle_help(args: str, context: dict) -> CommandResult:
     result = CommandResult()
     
     try:
-        with open("commands_explained.md", "r", encoding="utf-8") as f:
+        with open("cas_commands_explained.md", "r", encoding="utf-8") as f:
             help_text = f.read()
         result.add_text(help_text)
     except FileNotFoundError:
