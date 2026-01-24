@@ -226,7 +226,65 @@ All settings are in `cas_config.py`:
 
 ---
 
+
 ## Setup Guides
+
+### Phone Connection Overview
+
+CAS uses two different methods to access your phone's camera:
+
+| Command | Method | Used For |
+|---------|--------|----------|
+| `!CAS see` | Termux Flask server | Quick snapshots |
+| `!CAS watch` | ADB (Android Debug Bridge) | Video recording |
+
+You'll need both set up for full functionality.
+
+---
+
+### Termux Camera Setup (for `!CAS see`)
+
+The `!CAS see` command uses a Flask server running on your phone via Termux.
+
+#### Prerequisites
+
+1. **Install Termux** from F-Droid (not Play Store - that version is outdated)
+
+2. **Install Termux:API** from F-Droid (provides camera access)
+
+3. **In Termux, install required packages:**
+```bash
+   pkg install python termux-api
+   pip install flask
+```
+
+4. **Copy `what_john_sees_snapshot-Phone.py` to your phone** (e.g., to Termux home directory)
+
+#### Running the Server
+
+In Termux:
+```bash
+python what_john_sees_snapshot-Phone.py
+```
+
+The server runs on `http://<phone-ip>:8080`. The `/snap` endpoint takes a photo and returns it.
+
+#### Keeping it Running
+
+To keep the server running in the background:
+```bash
+nohup python what_john_sees_snapshot-Phone.py &
+```
+
+Or use a Termux session that stays open.
+
+#### Troubleshooting
+
+- **Camera permission denied**: Run `termux-setup-storage` and grant camera permissions to Termux:API
+- **Connection refused**: Ensure the Flask server is running and phone IP matches `PHONE_IP` in `cas_core/adb.py`
+- **Black/empty images**: Some phones need camera "warm-up" time. Try adding a delay in the script.
+
+---
 
 ### ADB Setup (for `!CAS watch`)
 
@@ -279,50 +337,15 @@ adb devices
 - **Phone IP changed**: Check Settings → WiFi → (your network) → IP address, then update `PHONE_IP` in `cas_core/adb.py`.
 - **Connection drops**: Phone IP may have changed (common with DHCP). Consider assigning a static IP to your phone in your router settings.
 
-
 ---
 
+### Phone IP Configuration
 
-### Termux Camera Setup (for `!CAS see`)
-
-The `!CAS see` command uses a Flask server running on your phone via Termux.
-
-#### Prerequisites
-
-1. **Install Termux** from F-Droid (not Play Store - that version is outdated)
-
-2. **Install Termux:API** from F-Droid (provides camera access)
-
-3. **In Termux, install required packages:**
-```bash
-   pkg install python termux-api
-   pip install flask
+Both methods require your phone's IP address. Update this in `cas_core/adb.py`:
+```python
+PHONE_IP = "192.168.0.235"  # Your phone's IP
 ```
 
-4. **Copy `what_john_sees_snapshot-Phone.py` to your phone** (e.g., to Termux home directory)
-
-#### Running the Server
-
-In Termux:
-```bash
-python what_john_sees_snapshot-Phone.py
-```
-
-The server runs on `http://<phone-ip>:8080`. The `/snap` endpoint takes a photo and returns it.
-
-#### Keeping it Running
-
-To keep the server running in the background:
-```bash
-nohup python what_john_sees_snapshot-Phone.py &
-```
-
-Or use a Termux session that stays open.
-
-#### Troubleshooting
-
-- **Camera permission denied**: Run `termux-setup-storage` and grant camera permissions to Termux:API
-- **Connection refused**: Ensure the Flask server is running and phone IP matches `PHONE_IP` in `cas_core/adb.py`
-- **Black/empty images**: Some phones need camera "warm-up" time. Try adding a delay in the script.
+To find your phone's IP: Settings → WiFi → (your network) → IP address
 
 `</file>`
