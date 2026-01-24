@@ -441,7 +441,6 @@ requests          # HTTP client (for phone camera)
 
 - **Chrome**: Running with `--remote-debugging-port=9222`
 - **OBS Studio**: Running with WebSocket server enabled (for screen recording)
-- **IP Webcam** (Android app): Running on phone (for phone camera)
 - **ADB**: Android Debug Bridge for phone video recording
 
 ### Chrome Launch Command
@@ -550,7 +549,7 @@ chrome.exe --remote-debugging-port=9222
 
 - **Screenshot**: Check `MONITORS` setting in config
 - **Recording**: Ensure OBS is running with WebSocket enabled
-- **Phone**: Verify IP Webcam app is running, phone IP is correct
+- **Phone**: Check ADB connection, and if `what_john_sees_snapshot-Phone.py` is running on Phone.
 
 ### Clipboard issues when screen is locked
 

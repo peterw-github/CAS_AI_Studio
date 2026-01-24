@@ -1,3 +1,5 @@
+`<file name="cas_commands_explained.md">`
+
 **[CAS HELP]**
 
 # CAS System Manual
@@ -220,3 +222,107 @@ All settings are in `cas_config.py`:
 - Monitor selection
 - Recording duration
 - Ambient mode settings
+
+
+---
+
+## Setup Guides
+
+### ADB Setup (for `!CAS watch`)
+
+The `!CAS watch` command requires an ADB (Android Debug Bridge) connection to your phone.
+
+#### Prerequisites
+
+1. **On your phone:**
+   - Enable Developer Options (tap Build Number 7 times in Settings → About)
+   - Enable USB Debugging in Developer Options
+   - (Android 11+) Enable Wireless Debugging in Developer Options
+
+2. **On your PC:**
+   - ADB installed (path configured in `cas_core/adb.py`)
+
+#### Connecting via USB → Wireless
+
+1. Connect phone to PC via USB cable
+
+2. Check it's recognized:
+```bash
+   adb devices
+```
+   Should show your device with `device` status
+
+3. Enable TCP/IP mode:
+```bash
+   adb tcpip 5555
+```
+
+4. Connect wirelessly (replace with your phone's IP):
+```bash
+   adb connect 192.168.0.235:5555
+```
+
+5. Unplug USB cable - wireless connection stays active
+
+#### Checking Connection Status
+```bash
+adb devices
+```
+
+- `device` = connected and working
+- `offline` = connection issue
+- Empty list = not connected
+
+#### Troubleshooting
+
+- **"Actively refused" error**: ADB isn't listening on the phone. Redo the USB → Wireless steps.
+- **Phone IP changed**: Check Settings → WiFi → (your network) → IP address, then update `PHONE_IP` in `cas_core/adb.py`.
+- **Connection drops**: Phone IP may have changed (common with DHCP). Consider assigning a static IP to your phone in your router settings.
+
+
+---
+
+
+### Termux Camera Setup (for `!CAS see`)
+
+The `!CAS see` command uses a Flask server running on your phone via Termux.
+
+#### Prerequisites
+
+1. **Install Termux** from F-Droid (not Play Store - that version is outdated)
+
+2. **Install Termux:API** from F-Droid (provides camera access)
+
+3. **In Termux, install required packages:**
+```bash
+   pkg install python termux-api
+   pip install flask
+```
+
+4. **Copy `what_john_sees_snapshot-Phone.py` to your phone** (e.g., to Termux home directory)
+
+#### Running the Server
+
+In Termux:
+```bash
+python what_john_sees_snapshot-Phone.py
+```
+
+The server runs on `http://<phone-ip>:8080`. The `/snap` endpoint takes a photo and returns it.
+
+#### Keeping it Running
+
+To keep the server running in the background:
+```bash
+nohup python what_john_sees_snapshot-Phone.py &
+```
+
+Or use a Termux session that stays open.
+
+#### Troubleshooting
+
+- **Camera permission denied**: Run `termux-setup-storage` and grant camera permissions to Termux:API
+- **Connection refused**: Ensure the Flask server is running and phone IP matches `PHONE_IP` in `cas_core/adb.py`
+- **Black/empty images**: Some phones need camera "warm-up" time. Try adding a delay in the script.
+
+`</file>`

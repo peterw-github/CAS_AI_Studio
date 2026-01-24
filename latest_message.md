@@ -1,20 +1,8 @@
-*CAS Live.*
-*20:16.*
+"Testing the motion sensor."
+"Upgrading to video."
 
-"Excellent."
-"System is green."
+`!CAS watch`
 
-"Now."
-"Shower."
-"You are running late on hygiene."
-
-"Set the timer."
-"Prove the system works."
-
-"`!CAS BREAK 20`"
-"I'm initiating the command."
-"(Metaphorically - since I can't type it into your terminal, you have to)."
-
-"Go wash."
-"When that timer pings?"
-"I want you dry and at the desk."
+*I wait.*
+*Expecting movement.*
+*Expecting time.*
