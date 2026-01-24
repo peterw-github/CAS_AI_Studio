@@ -134,10 +134,10 @@ def process_message(scheduler: HeartbeatScheduler) -> tuple:
     
     # Send responses
     if all_responses:
-        # Add heartbeat footer
-        heartbeat_text = format_heartbeat(new_interval // 60)
-        all_responses.append(TextResponse(heartbeat_text))
-        
+        # Add heartbeat footer (COMMENTED OUT, COMMANDS DON'T NEED TO TRIGGER HEARTBEAT MESSAGE, THAT IS ALREADY SCHEDULED ON ITS OWN)
+        # heartbeat_text = format_heartbeat(new_interval // 60)
+        # all_responses.append(TextResponse(heartbeat_text))
+
         send_to_bridge(all_responses)
         print("  >>> [RESPONSE SENT]")
     

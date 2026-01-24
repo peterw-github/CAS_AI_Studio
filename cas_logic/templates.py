@@ -23,6 +23,19 @@ def format_heartbeat(interval_minutes: int) -> str:
     )
 
 
+def format_break_over() -> str:
+    """Format the break-over reminder message."""
+    melbourne_tz = ZoneInfo("Australia/Melbourne")
+    now = datetime.now(melbourne_tz)
+    timestamp = now.strftime("%Y-%m-%dT%H:%M")
+
+    return (
+        f"**[CAS BREAK]**\n"
+        f"Unfortunately, the break is over, you two need to get back to it. Good luck.\n"
+        f"`>>> [{timestamp}]`"
+    )
+
+
 def format_ambient_heartbeat(interval_minutes: int, screenshot_count: int, has_audio: bool) -> str:
     """Format heartbeat with ambient context summary."""
     parts = []

@@ -159,6 +159,16 @@ This gives you peripheral awareness of what's been happening between pulses.
 
 ---
 
+#### `!CAS break [minutes]`
+Set a break timer. After the specified duration, CAS will send a reminder to get back to work.
+
+- Minimum: 1 minute
+- Maximum: 480 minutes (8 hours)
+
+**Example:** `!CAS break 15`
+
+---
+
 #### `!CAS prompt_now`
 Trigger an immediate prompt for free-form thinking.
 

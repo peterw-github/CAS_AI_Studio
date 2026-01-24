@@ -4,8 +4,11 @@ Control commands: freq, stop, prompt_now, help, ambient
 
 import cas_config as cfg
 from cas_core.commands import register
-from cas_core.protocol import CommandResult, TextResponse
+from cas_core.protocol import CommandResult, TextResponse, serialize_responses
 from cas_logic import templates
+import threading
+import cas_config as cfg
+
 
 
 @register("freq", aliases=["frequency", "timer", "prompt_frequency"])
@@ -137,4 +140,40 @@ def handle_ambient(args: str, context: dict) -> CommandResult:
     except ImportError as e:
         result.add_text(f"**[CAS ERROR]** Ambient module not available: {e}")
     
+    return result
+
+
+@register("break")
+def handle_break(args: str, context: dict) -> CommandResult:
+    """Set a break timer."""
+    result = CommandResult()
+
+    if not args:
+        result.add_text("**[CAS]** Usage: `!CAS break <minutes>`")
+        return result
+
+    try:
+        minutes = int(args)
+
+        if minutes < 1:
+            result.add_text("**[CAS ERROR]** Break must be at least 1 minute.")
+            return result
+
+        def send_break_reminder():
+            from cas_logic.templates import format_break_over
+            responses = [TextResponse(format_break_over())]
+            with open(cfg.COMMAND_FILE, "w", encoding="utf-8") as f:
+                f.write(serialize_responses(responses))
+            print("[CAS] Break reminder sent.")
+
+        timer = threading.Timer(minutes * 60, send_break_reminder)
+        timer.daemon = True
+        timer.start()
+
+        result.add_text(f"**[CAS]** Break started. See you in {minutes} minute{'s' if minutes != 1 else ''}. Enjoy!")
+        print(f"[CMD] Break timer set: {minutes} minutes")
+
+    except ValueError:
+        result.add_text(f"**[CAS ERROR]** Invalid number: `{args}`")
+
     return result
