@@ -11,6 +11,7 @@ This module is now much simpler - it just:
 
 import time
 import os
+import importlib
 
 import cas_config as cfg
 from cas_core import (
@@ -153,6 +154,9 @@ def main():
     
     # Initialize scheduler
     scheduler = HeartbeatScheduler(cfg.DEFAULT_INTERVAL)
+
+    # Track the last known config value so we only update when YOU change the file
+    last_config_interval = cfg.DEFAULT_INTERVAL
     
     # Check ambient mode status
     try:
@@ -181,6 +185,19 @@ def main():
     
     # --- Main Loop ---
     while True:
+
+        # --- NEW: HOT RELOAD CONFIG ---
+        try:
+            importlib.reload(cfg)
+            # Only update scheduler if the file value actually changed
+            if cfg.DEFAULT_INTERVAL != last_config_interval:
+                print(f"[CAS BRAIN] Config change detected! Updating interval: {cfg.DEFAULT_INTERVAL}s")
+                scheduler.set_interval(cfg.DEFAULT_INTERVAL)
+                last_config_interval = cfg.DEFAULT_INTERVAL
+        except Exception as e:
+            print(f"[CAS BRAIN] Error reloading config: {e}")
+
+
         # Send heartbeat if due
         if scheduler.is_heartbeat_due():
             # Build heartbeat response

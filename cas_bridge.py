@@ -12,6 +12,7 @@ import time
 import os
 import datetime
 import pyperclip
+import importlib
 
 import cas_config as cfg
 from cas_core import deserialize_responses
@@ -499,6 +500,13 @@ def main():
         open(cfg.COMMAND_FILE, 'w').close()
     
     while True:
+
+        # 0. HOT RELOAD CAS_CONFIG
+        try:
+            importlib.reload(cfg)
+        except Exception as e:
+            print(f"[BRIDGE] Warning: Config file syntax error: {e}")
+
         # 1. Check for new messages from AI
         check_for_new_message(driver)
         
