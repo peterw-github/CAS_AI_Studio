@@ -20,8 +20,9 @@ from cas_core.clipboard import copy_file_to_clipboard, copy_image_to_clipboard
 # --- CONFIGURATION ---
 PHONE_IP = "192.168.0.235"
 ADB_PORT = "5555"
-ADB_PATH = r"D:\CAS\Phone_Code\android_sdk_platform_tools\adb.exe"
-PC_DESTINATION_FOLDER = r"D:\CAS\Phone_Code\Recordings"
+_BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ADB_PATH = os.path.join(_BASE_DIR, "Phone_Code", "android_sdk_platform_tools", "adb.exe")
+PC_DESTINATION_FOLDER = os.path.join(_BASE_DIR, "Phone_Code", "Recordings")
 
 # Phone camera app coordinates
 COORD_WIDE_LENS = "1550 630"

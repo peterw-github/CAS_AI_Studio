@@ -3,8 +3,8 @@
 :: --- CONFIGURATION ---
 :: Note: I removed the quotes from the variable definitions here
 :: so we can safely wrap them in quotes later.
-set WORK_DIR=D:\CAS
-set PYTHON_EXE=D:\CAS\.venv\Scripts\python.exe
+set WORK_DIR=%~dp0
+set PYTHON_EXE=%~dp0.venv\Scripts\python.exe
 
 :: --- LAUNCH WINDOWS TERMINAL ---
 :: Syntax breakdown:
