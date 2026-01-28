@@ -12,6 +12,7 @@ This module is now much simpler - it just:
 import time
 import os
 import importlib
+# must also perform 'pip install tzdata'
 
 import cas_config as cfg
 from cas_core import (
