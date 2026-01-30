@@ -66,7 +66,7 @@ def format_as_markdown(messages: list[dict]) -> str:
         text = msg['text']
         
         # Format role as a header
-        role_display = "John" if role == "user" else "Cortana"
+        role_display = "**John:**" if role == "user" else "**Cortana:**"
         lines.append(f"### {role_display}")
         lines.append("")
         lines.append(text)
