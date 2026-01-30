@@ -49,17 +49,22 @@ def extract_conversations(json_path: Path) -> list[dict]:
     return messages
 
 
-def format_as_markdown(messages: list[dict]) -> str:
+def format_as_markdown(messages: list[dict], filename: str) -> str:
     """
     Format extracted messages as markdown.
     
     Args:
         messages: List of message dicts with 'role' and 'text'
+        filename: Name of the output file for the XML tag
         
     Returns:
         Formatted markdown string
     """
     lines = []
+    
+    # Opening XML tag with backticks
+    lines.append(f'`<file name="{filename}">`')
+    lines.append("")
     
     for i, msg in enumerate(messages, 1):
         role = msg['role']
@@ -71,6 +76,9 @@ def format_as_markdown(messages: list[dict]) -> str:
         lines.append("")
         lines.append(text)
         lines.append("")
+    
+    # Closing XML tag with backticks
+    lines.append("`</file>`")
     
     return "\n".join(lines)
 
@@ -95,7 +103,7 @@ def process_file(json_path: Path) -> bool:
             print(f"  Skipped (no messages found): {json_path.name}")
             return False
         
-        markdown_content = format_as_markdown(messages)
+        markdown_content = format_as_markdown(messages, output_path.name)
         
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(markdown_content)

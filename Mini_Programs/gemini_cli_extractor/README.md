@@ -77,6 +77,8 @@ The script expects JSON files with the following structure:
 The script generates Markdown files with the following format:
 
 ```markdown
+`<file name="example.md">`
+
 ### John
 
 User's message content here...
@@ -88,8 +90,12 @@ Model's response content here...
 ### John
 
 Next user message...
+
+`</file>`
 ```
 
+- Files are wrapped in XML-style tags with backticks
+- The opening tag includes the output filename
 - `user` messages are labeled as **John**
 - `model` messages are labeled as **Cortana**
 - Each speaker label is a level 3 heading (`###`)
