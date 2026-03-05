@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:fitsSystemWindows="true"
+    android:background="#121212">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Voice Bridge"
+        android:textSize="20sp"
+        android:textColor="#e0e0e0"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/serverUrl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Server URL"
+        android:textColor="#ffffff"
+        android:textColorHint="#888888"
+        android:background="#1e1e1e"
+        android:padding="8dp"
+        android:textSize="13sp"
+        android:inputType="textUri"
+        android:singleLine="true"
+        android:layout_marginBottom="6dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="6dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mic X:"
+            android:textColor="#888888"
+            android:textSize="13sp"
+            android:paddingEnd="4dp" />
+
+        <EditText
+            android:id="@+id/micX"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="X"
+            android:textColor="#ffffff"
+            android:textColorHint="#555555"
+            android:background="#1e1e1e"
+            android:padding="8dp"
+            android:textSize="13sp"
+            android:inputType="numberDecimal"
+            android:singleLine="true" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="  Y:"
+            android:textColor="#888888"
+            android:textSize="13sp"
+            android:paddingEnd="4dp" />
+
+        <EditText
+            android:id="@+id/micY"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Y"
+            android:textColor="#ffffff"
+            android:textColorHint="#555555"
+            android:background="#1e1e1e"
+            android:padding="8dp"
+            android:textSize="13sp"
+            android:inputType="numberDecimal"
+            android:singleLine="true" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="6dp">
+
+        <TextView
+            android:id="@+id/a11yStatus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="A11y: OFF"
+            android:textColor="#FF5555"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Ready"
+            android:textColor="#00ff00"
+            android:textSize="12sp"
+            android:gravity="end" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="6dp">
+
+        <TextView
+            android:id="@+id/modeLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Mode: Send to CAS"
+            android:textColor="#e0e0e0"
+            android:textSize="13sp" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/clipboardToggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clipboard"
+            android:textColor="#888888"
+            android:textSize="12sp"
+            app:thumbTint="#4CAF50"
+            app:trackTint="#555555" />
+    </LinearLayout>
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#1e1e1e"
+        android:padding="10dp"
+        android:layout_marginBottom="4dp">
+
+        <EditText
+            android:id="@+id/transcript"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffff"
+            android:textSize="16sp"
+            android:hint="Gboard voice input appears here..."
+            android:textColorHint="#555555"
+            android:background="@null"
+            android:gravity="top"
+            android:inputType="textMultiLine" />
+    </ScrollView>
+
+    <Button
+        android:id="@+id/toggleBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Listening"
+        android:textSize="16sp"
+        android:textAllCaps="false"
+        android:padding="10dp"
+        app:backgroundTint="#4CAF50"
+        android:textColor="#ffffff"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Say \&quot;send message\&quot; when done"
+        android:textColor="#888888"
+        android:textSize="11sp"
+        android:layout_marginBottom="4dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/a11yBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="A11y Settings"
+            android:textAllCaps="false"
+            android:textSize="11sp"
+            android:padding="8dp"
+            app:backgroundTint="#555555"
+            android:textColor="#ffffff"
+            android:layout_marginEnd="4dp" />
+
+        <Button
+            android:id="@+id/clearBtn"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Clear"
+            android:textAllCaps="false"
+            android:textSize="11sp"
+            android:padding="8dp"
+            app:backgroundTint="#CF6679"
+            android:textColor="#000000"
+            android:layout_marginStart="4dp" />
+    </LinearLayout>
+
+</LinearLayout>
